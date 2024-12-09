@@ -1,0 +1,5 @@
+gradio 
+transformers
+sqlite3
+torch
+accelerate>=0.26.0
