@@ -4,23 +4,25 @@ from src.orm.base_orm import BaseORM
 
 
 class Category(BaseORM):
-    def __init__(self, connection, cursor):
-        super().__init__(connection, cursor)
-        
+    def __init__(self):
+        super().__init__()
+
     def insert(self, name, description):
+        connection, cursor = self.db_connection()
         insert_query = """
         INSERT INTO Categories (name, description)
         VALUES (?, ?);
         """
 
         try:
-            self.cursor.execute(insert_query, (name, description))
-            self.connection.commit()
+            cursor.execute(insert_query, (name, description))
+            connection.commit()
             print(f"Category '{name}' inserted successfully.")
         except sqlite3.Error as e:
             print(f"Error inserting category: {e}")
 
     def update(self, category_id, name=None, description=None):
+        connection, cursor = self.db_connection()
         update_query = "UPDATE Categories SET "
         fields = []
         values = []
@@ -42,31 +44,32 @@ class Category(BaseORM):
         values.append(category_id)
 
         try:
-            self.cursor.execute(update_query, values)
+            cursor.execute(update_query, values)
 
-            if self.cursor.rowcount == 0:
+            if cursor.rowcount == 0:
                 print(f"No category found with category_id {category_id}.")
             else:
                 print(f"Category with category_id {category_id} updated successfully.")
 
-            self.connection.commit()
+            connection.commit()
         except sqlite3.Error as e:
             print(f"Error updating category: {e}")
 
     def delete(self, category_id):
+        connection, cursor = self.db_connection()
         delete_query = """
         DELETE FROM Categories
         WHERE category_id = ?;
         """
 
         try:
-            self.cursor.execute(delete_query, (category_id,))
+            cursor.execute(delete_query, (category_id,))
 
-            if self.cursor.rowcount == 0:
+            if cursor.rowcount == 0:
                 print(f"No category found with category_id {category_id}.")
             else:
                 print(f"Category with category_id {category_id} deleted successfully.")
 
-            self.connection.commit()
+            connection.commit()
         except sqlite3.Error as e:
             print(f"Error deleting category: {e}")

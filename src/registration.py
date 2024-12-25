@@ -1,9 +1,6 @@
 import sqlite3
 import hashlib
 
-USER_EMAIL = ""
-USER_PASSWORD = ""
-
 
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
@@ -20,7 +17,7 @@ def register_user(username, email, password):
             VALUES (?, ?, ?)
         ''', (username, email, password_hash))
         connection.commit()
-        return f"User {username} successfully registered!"
+        return username
     except sqlite3.IntegrityError:
         return "Error: Email already exists."
 
@@ -37,10 +34,7 @@ def login_user(email, password):
     ''', (email, password_hash))
     user = cursor.fetchone()
     
-    USER_EMAIL = email
-    USER_PASSWORD = password
-
     if user:
-        return f"Login successful! Welcome, {user[1]}!"
+        return user[1]
     else:
         return "Login failed: Invalid email or password."

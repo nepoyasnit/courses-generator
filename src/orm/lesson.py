@@ -3,11 +3,12 @@ import sqlite3
 from src.orm.base_orm import BaseORM
 
 class Lesson(BaseORM):
-    def __init__(self, connection, cursor):
-        super().__init__(connection, cursor)
+    def __init__(self):
+        super().__init__()
 
     def insert(self, module_id, title, content, duration_minutes, sequence):
-        self.cursor.execute("PRAGMA foreign_keys = ON;")
+        connection, cursor = self.db_connection()
+        cursor.execute("PRAGMA foreign_keys = ON;")
 
         insert_query = """
         INSERT INTO Lessons (module_id, title, content, duration_minutes, sequence)
@@ -15,14 +16,15 @@ class Lesson(BaseORM):
         """
 
         try:
-            self.cursor.execute(insert_query, (module_id, title, content, duration_minutes, sequence))
-            self.connection.commit()
+            cursor.execute(insert_query, (module_id, title, content, duration_minutes, sequence))
+            connection.commit()
             print(f"Lesson '{title}' inserted successfully.")
         except sqlite3.Error as e:
             print(f"Error inserting lesson: {e}")
 
     def update(self, lesson_id, module_id=None, title=None, content=None, duration_minutes=None, sequence=None):
-        self.cursor.execute("PRAGMA foreign_keys = ON;")
+        connection, cursor = self.db_connection()
+        cursor.execute("PRAGMA foreign_keys = ON;")
 
         update_query = "UPDATE Lessons SET "
         fields = []
@@ -46,7 +48,7 @@ class Lesson(BaseORM):
 
         if not fields:
             print("No fields to update.")
-            self.connection.close()
+            connection.close()
             return
 
         update_query += ", ".join(fields)
@@ -54,34 +56,34 @@ class Lesson(BaseORM):
         values.append(lesson_id)
 
         try:
-            self.cursor.execute(update_query, values)
+            cursor.execute(update_query, values)
 
-            if self.cursor.rowcount == 0:
+            if cursor.rowcount == 0:
                 print(f"No lesson found with lesson_id {lesson_id}.")
             else:
                 print(f"Lesson with lesson_id {lesson_id} updated successfully.")
 
-            self.connection.commit()
+            connection.commit()
         except sqlite3.Error as e:
             print(f"Error updating lesson: {e}")
 
     def delete(self, lesson_id):
-        self.cursor.execute("PRAGMA foreign_keys = ON;")
+        connection, cursor = self.db_connection()
+        cursor.execute("PRAGMA foreign_keys = ON;")
 
-        # SQL command to delete data
         delete_query = """
         DELETE FROM Lessons
         WHERE lesson_id = ?;
         """
 
         try:
-            self.cursor.execute(delete_query, (lesson_id,))
+            cursor.execute(delete_query, (lesson_id,))
 
-            if self.cursor.rowcount == 0:
+            if cursor.rowcount == 0:
                 print(f"No lesson found with lesson_id {lesson_id}.")
             else:
                 print(f"Lesson with lesson_id {lesson_id} deleted successfully.")
 
-            self.connection.commit()
+            connection.commit()
         except sqlite3.Error as e:
             print(f"Error deleting lesson: {e}")

@@ -10,6 +10,7 @@ from src.orm.quiz import Quiz
 from src.orm.question import Question
 from src.orm.prompt import Prompt
 from src.orm.answer import Answer
+from src.registration import hash_password
 
 conn = sqlite3.connect("courses.db")
 cursor = conn.cursor()
@@ -25,7 +26,7 @@ question = Question(conn, cursor)
 answer = Answer(conn, cursor)
 prompt = Prompt(conn, cursor)
 
-user.insert("maksim", "maksiksay@gmail.com", "11111111")
+user.insert("maksim", "maksiksay@gmail.com", hash_password("11111111"))
 
 category.insert("languages", "courses for languages")
 category.insert("programming", "courses for programming")
@@ -67,8 +68,9 @@ answer.insert(2, "A", True)
 answer.insert(3, "fdsdf", True)
 answer.insert(4, "A", True)
 
-prompt.insert("Question", "Basic Python Question", "A prompt for basic Python-related questions.")
-prompt.insert("Explanation", "Advanced Python Explanation", "A detailed explanation prompt for Python concepts.")
-prompt.insert("Debugging", "Python Debugging Assistance", "A prompt to assist in debugging Python code.")
-prompt.insert("Instruction", "Step-by-step Guide", "A prompt to generate step-by-step instructions for a given topic.")
-prompt.insert("Example", "Code Example Generation", "A prompt to generate Python code examples.")
+prompt.insert("Course generator", "Prompt for course description", "Generate a detailed course description for a {course_difficulty} level course on {course_title} with {modules_amount} modules.")
+prompt.insert("Module generator", "Prompt for module generation", "Generate a detailed module description for {module_number}th module with title {module_title} and with {lessons_amount} lessons in course {course_title}")
+prompt.insert("Lesson generator", "Prompt for lesson generation", "Generate a detailed {lesson_number}th lesson with {lesson_title} title in module {module_title} in course {course_title}")
+prompt.insert("Quiz generator", "Prompt for quiz generation", "Generate a quiz description for {lesson_title} lesson in in course {course_title} with {questions_amount} questions. You don't need to generate questions, only quiz description.")
+prompt.insert("Question generator", "Prompt for question generation", "Generate a question description for {quiz_title} quiz in {lesson_title} lesson for course {course_title}")
+prompt.insert("Answer generator", "Prompt for answer generation", "Generate an answer for question: {question}")

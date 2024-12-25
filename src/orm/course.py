@@ -3,11 +3,13 @@ import sqlite3
 from src.orm.base_orm import BaseORM
 
 class Course(BaseORM):
-    def __init__(self, connection, cursor):
-        super().__init__(connection, cursor)
+    def __init__(self):
+        super().__init__()
+
 
     def insert(self, title, description, language, level, category_id, created_by):
-        self.cursor.execute("PRAGMA foreign_keys = ON;")
+        connection, cursor = self.db_connection()
+        cursor.execute("PRAGMA foreign_keys = ON;")
 
         insert_query = """
         INSERT INTO Courses (title, description, language, level, category_id, created_by)
@@ -19,15 +21,16 @@ class Course(BaseORM):
             return
 
         try:
-            self.cursor.execute(insert_query, (title, description, language, level, category_id, created_by))
+            cursor.execute(insert_query, (title, description, language, level, category_id, created_by))
 
-            self.connection.commit()
-            print("Course inserted successfully with course_id:", self.cursor.lastrowid)
+            connection.commit()
+            print("Course inserted successfully with course_id:", cursor.lastrowid)
         except sqlite3.Error as e:
             print(f"Error inserting course: {e}")
 
     def update(self, course_id, title=None, description=None, language=None, level=None, category_id=None, created_by=None):
-        self.cursor.execute("PRAGMA foreign_keys = ON;")
+        connection, cursor = self.db_connection()
+        cursor.execute("PRAGMA foreign_keys = ON;")
 
         update_query = "UPDATE Courses SET "
         fields = []
@@ -64,19 +67,20 @@ class Course(BaseORM):
         values.append(course_id)
 
         try:
-            self.cursor.execute(update_query, values)
+            cursor.execute(update_query, values)
 
-            if self.cursor.rowcount == 0:
+            if cursor.rowcount == 0:
                 print(f"No course found with course_id {course_id}.")
             else:
                 print(f"Course with course_id {course_id} updated successfully.")
 
-            self.connection.commit()
+            connection.commit()
         except sqlite3.Error as e:
             print(f"Error updating course: {e}")
 
     def delete(self, course_id: int):
-        self.cursor.execute("PRAGMA foreign_keys = ON;")
+        connection, cursor = self.db_connection()
+        cursor.execute("PRAGMA foreign_keys = ON;")
 
         delete_query = """
         DELETE FROM Courses
@@ -84,14 +88,14 @@ class Course(BaseORM):
         """
 
         try:
-            self.cursor.execute(delete_query, (course_id,))
+            cursor.execute(delete_query, (course_id,))
 
-            if self.cursor.rowcount == 0:
+            if cursor.rowcount == 0:
                 print(f"No course found with course_id {course_id}.")
             else:
                 print(f"Course with course_id {course_id} deleted successfully.")
 
-            self.connection.commit()
+            connection.commit()
         except sqlite3.Error as e:
             print(f"Error deleting course: {e}")
 

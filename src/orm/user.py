@@ -4,24 +4,26 @@ from src.orm.base_orm import BaseORM
 
 
 class User(BaseORM):
-    def __init__(self, connection, cursor):
-        super().__init__(connection, cursor)
+    def __init__(self):
+        super().__init__()
         
     def insert(self, username, email, password_hash):
+        connection, cursor = self.db_connection()
         insert_query = """
         INSERT INTO Users (username, email, password_hash)
         VALUES (?, ?, ?);
         """
-
+        
         try:
-            self.cursor.execute(insert_query, (username, email, password_hash))
+            cursor.execute(insert_query, (username, email, password_hash))
 
-            self.connection.commit()
+            connection.commit()
             print(f"User '{username}' inserted successfully.")
         except sqlite3.Error as e:
             print(f"Error inserting user: {e}")
     
     def update(self, user_id, username=None, email=None, password_hash=None):
+        connection, cursor = self.db_connection()
         update_query = "UPDATE Users SET "
         fields = []
         values = []
@@ -47,32 +49,33 @@ class User(BaseORM):
 
         try:
             # Execute the update command
-            self.cursor.execute(update_query, values)
+            cursor.execute(update_query, values)
 
             # Check if a row was updated
-            if self.cursor.rowcount == 0:
+            if cursor.rowcount == 0:
                 print(f"No user found with user_id {user_id}.")
             else:
                 print(f"User with user_id {user_id} updated successfully.")
 
-            self.connection.commit()
+            connection.commit()
         except sqlite3.Error as e:
             print(f"Error updating user: {e}")
 
     def delete(self, user_id):
+        connection, cursor = self.db_connection()
         delete_query = """
         DELETE FROM Users
         WHERE user_id = ?;
         """
 
         try:
-            self.cursor.execute(delete_query, (user_id,))
+            cursor.execute(delete_query, (user_id,))
 
-            if self.cursor.rowcount == 0:
+            if cursor.rowcount == 0:
                 print(f"No user found with user_id {user_id}.")
             else:
                 print(f"User with user_id {user_id} deleted successfully.")
 
-            self.connection.commit()
+            connection.commit()
         except sqlite3.Error as e:
             print(f"Error deleting user: {e}")

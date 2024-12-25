@@ -4,11 +4,12 @@ from src.orm.base_orm import BaseORM
 
 
 class Question(BaseORM):
-    def __init__(self, connection, cursor):
-        super().__init__(connection, cursor)
+    def __init__(self):
+        super().__init__()
 
     def insert(self, quiz_id, question_text, question_type):
-        self.cursor.execute("PRAGMA foreign_keys = ON;")
+        connection, cursor = self.db_connection()
+        cursor.execute("PRAGMA foreign_keys = ON;")
 
         # SQL command to insert data
         insert_query = """
@@ -18,14 +19,15 @@ class Question(BaseORM):
 
         try:
             # Execute the insert command
-            self.cursor.execute(insert_query, (quiz_id, question_text, question_type))
-            self.connection.commit()
+            cursor.execute(insert_query, (quiz_id, question_text, question_type))
+            connection.commit()
             print(f"Question inserted successfully for quiz_id {quiz_id}.")
         except sqlite3.Error as e:
             print(f"Error inserting question: {e}")
     
     def update(self, question_id, quiz_id=None, question_text=None, question_type=None):
-        self.cursor.execute("PRAGMA foreign_keys = ON;")
+        connection, cursor = self.db_connection()
+        cursor.execute("PRAGMA foreign_keys = ON;")
 
         update_query = "UPDATE Questions SET "
         fields = []
@@ -55,20 +57,21 @@ class Question(BaseORM):
 
         try:
             # Execute the update command
-            self.cursor.execute(update_query, values)
+            cursor.execute(update_query, values)
 
             # Check if a row was updated
-            if self.cursor.rowcount == 0:
+            if cursor.rowcount == 0:
                 print(f"No question found with question_id {question_id}.")
             else:
                 print(f"Question with question_id {question_id} updated successfully.")
 
-            self.connection.commit()
+            connection.commit()
         except sqlite3.Error as e:
             print(f"Error updating question: {e}")
 
     def delete(self, question_id):
-        self.cursor.execute("PRAGMA foreign_keys = ON;")
+        connection, cursor = self.db_connection()
+        cursor.execute("PRAGMA foreign_keys = ON;")
 
         delete_query = """
         DELETE FROM Questions
@@ -76,14 +79,14 @@ class Question(BaseORM):
         """
 
         try:
-            self.cursor.execute(delete_query, (question_id,))
+            cursor.execute(delete_query, (question_id,))
 
-            if self.cursor.rowcount == 0:
+            if cursor.rowcount == 0:
                 print(f"No question found with question_id {question_id}.")
             else:
                 print(f"Question with question_id {question_id} deleted successfully.")
 
-            self.connection.commit()
+            connection.commit()
         except sqlite3.Error as e:
             print(f"Error deleting question: {e}")
 
